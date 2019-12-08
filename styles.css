@@ -152,7 +152,7 @@ h1 {
     width: calc(calc(calc(100% / 12) * 11) - var(--margin-total));
 }
 .column.width-12 {
-    width: calc(100% - var(--margin-total));
+    width: calc(100%);
 }
 
 .button {

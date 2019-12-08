@@ -1,9 +1,9 @@
 const ipc = require('electron').ipcRenderer;
 let output;
 let errorHeader;
+const { myConsole } = require('./utils/helpers.js');
 
 function sendData(dataName, value) {
-    hideError();
     if (value) {
         ipc.send(dataName, value);
     } else {
@@ -11,74 +11,26 @@ function sendData(dataName, value) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const mapping = {
-        string: 'A Test String',
-        int: 99,
-        float: 9.99,
-        list: [1, '2', 3, true],
-        object: {
-            key: 'value'
-        },
-        bool: true
-    };
+document.addEventListener('DOMContentLoaded', function () {
 
     output = document.getElementById('output');
     errorHeader = document.getElementById('error');
 
-    const sayHello = document.getElementById('sayHello');
-    const getArray = document.getElementById('getArray');
-    const getObject = document.getElementById('getObject');
-    const sendValue = document.getElementById('sendValue');
+    const execCode = document.getElementById('execCode');
+    const inputCode = document.getElementById('inputCode');
 
-    sayHello.addEventListener('click', () => sendData('hello'));
-    getArray.addEventListener('click', () => sendData('array'));
-    getObject.addEventListener('click', () => sendData('object'));
-    sendValue.addEventListener('click', () => {
-        const group = document.getElementById('typeGroup')
-        const selectedButton = group.querySelector('input:checked');
-        if (selectedButton) {
-            const selectedValue = selectedButton.value
-            sendData('type', mapping[selectedValue]);
-        } else {
-            writeError('Select a Type First!');
-        }
-    });
+
+    execCode.addEventListener('click', () => sendData('execCode', inputCode.value));
 
     addListeners();
 });
 
 
 function addListeners() {
-    ipc.on('hello-response', (_, data) => addLi(data));
-    ipc.on('array-response', (_, data) => addLi(`${data.constructor.name} - ${data}`));
-    ipc.on('object-response', (_, data) => addLi(`${data.constructor.name} - ${JSON.stringify(data)}`));
-    ipc.on('type-response', (_, data) => {
-        const printableValue = data.value instanceof Object ? JSON.stringify(data.value) : data.value;
-        addLi(`${printableValue} is ${data.type}`)
-    })
+    ipc.on('execCode-response', (_, data) => addLi(data));
 }
 
 function addLi(text) {
-    const liElem = document.createElement('li');
-    liElem.textContent = text;
-    output.appendChild(liElem);
-}
-
-function writeError(msg) {
-    errorHeader.textContent = msg;
-    if (msg === '') {
-        hideError();
-    } else {
-        showError();
-    }
-
-}
-
-function showError() {
-    errorHeader.classList.remove('hidden');
-}
-
-function hideError() {
-    errorHeader.classList.add('hidden');
+    const outputCode = document.getElementById('outputCode');
+    outputCode.value = text;
 }

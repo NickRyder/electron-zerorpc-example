@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 const zerorpc = require("zerorpc");
 const ipc = require('electron').ipcMain;
 const fs = require('fs');
@@ -32,7 +32,7 @@ app.on('ready', () => {
 });
 
 function spawnPythonServer() {
-    spawnedChild = spawn('python3',  ['-i', 'zerorpc-server.py']);
+    spawnedChild = spawn('python3', ['-i', 'zerorpc-server.py']);
 
     spawnedChild.on('close', (code, signal) => {
         console.log(`child error: ${code}, ${signal}`);
@@ -42,31 +42,18 @@ function spawnPythonServer() {
 }
 
 function connectToZeroRPC() {
+
+    myConsole.log("Connected to Zero RPC...");
     zerorpcClient = new zerorpc.Client();
     zerorpcClient.connect('tcp://127.0.0.1:4242');
 
-    ipc.on('hello', () => {
-        zerorpcClient.invoke('hello', 'RPC', (error, res, more) => {
-            ui.webContents.send('hello-response', res);
+    ipc.on('execCode', (event, val) => {
+        myConsole.log(val);
+        zerorpcClient.invoke('exec_code', val, (error, res, more) => {
+            myConsole.log(res);
+            ui.webContents.send('execCode-response', res);
             // myConsole.log(res);
         });
     });
 
-    ipc.on('array', () => {
-        zerorpcClient.invoke('get_array', (error, res, more) => {
-            ui.webContents.send('array-response', res);
-        });
-    });
-
-    ipc.on('object', () => {
-        zerorpcClient.invoke('get_object', (error, res, more) => {
-            ui.webContents.send('object-response', res);
-        });
-    });
-
-    ipc.on('type', (event, val) => {
-        zerorpcClient.invoke('determine_type', val, (error, res, more) => {
-            ui.webContents.send('type-response', res);
-        });
-    });
 }
