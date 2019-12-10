@@ -47,6 +47,7 @@ function connectToZeroRPC() {
     zerorpcClient = new zerorpc.Client();
     zerorpcClient.connect('tcp://127.0.0.1:4242');
 
+
     ipc.on('execCode', (event, val) => {
         myConsole.log(val);
         zerorpcClient.invoke('exec_code', val, (error, res, more) => {
